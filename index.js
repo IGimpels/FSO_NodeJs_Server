@@ -27,9 +27,22 @@ const persons = [
 ]
 
 
+app.get('/info', (request,response) => {
+    response.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`);
+})
 
 app.get('/api/persons', (request,response) => {
-    return response.json(persons)
+    response.json(persons)
+})
+
+app.get('/api/persons/:id', (request,response) => {
+    const id = Number(request.params.id)
+    const person = persons.find(p => p.id === id)
+    if(person)
+        response.json(person)
+    else
+        response.status(404).end()
+    
 })
 
 
