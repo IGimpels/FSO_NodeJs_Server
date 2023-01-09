@@ -15,6 +15,7 @@ mongoose.connect(url)
         name: {
             type: String,
             minLength: 3,
+            unique: true,
             required: true
         },
         number: {

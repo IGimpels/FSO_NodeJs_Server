@@ -6,8 +6,8 @@ POST http://127.0.0.1:3001/api/persons
 Content-Type: application/json
 
 {
-    "name" : "Ilia G",
-    "number" : "123-456"
+    "name" : "Ilia G8",
+    "number" : "125-6986678999"
 }
 
 ###
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 {
     "name" : "Ilia G",
-    "number" : "123-998"
+    "number" : "19-39799"
 }
 
 ###
