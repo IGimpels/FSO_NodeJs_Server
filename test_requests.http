@@ -2,10 +2,23 @@ GET http://127.0.0.1:3001/api/persons
 
 ###
 
+POST http://127.0.0.1:3001/api/persons
+Content-Type: application/json
+
+{
+    "name" : "Ilia G",
+    "number" : "123-456"
+}
+
+###
+
 GET http://127.0.0.1:3001/info
 
 ###
-GET http://127.0.0.1:3001/api/persons/2
+GET http://127.0.0.1:3001/api/persons/1
 
 ###
 GET http://127.0.0.1:3001/api/persons/200
+
+###
+DELETE http://127.0.0.1:3001/api/persons/8
