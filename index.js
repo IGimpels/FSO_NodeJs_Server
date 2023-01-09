@@ -36,14 +36,17 @@ app.get('/api/persons', (request,response) => {
 })
 
 const generateId = () => {
-    return persons.length === 0 ? 1 : (Math.max(...persons.map(p => p.id)) + 1)
+    return Math.floor(Math.random() * 1000000)
 }
 app.post('/api/persons', (request,response) => {
     const body = request.body
-    if(!body.name)
+    if(!body.name || !body.number)
     {
-        return response.status(400).json({"error": "name missing"})
+        return response.status(400).json({"error": "name or number missing"})
     }
+
+    if(persons.some(p => p.name === body.name))
+        return response.status(409).json({ error: 'name must be unique' })
 
     const newPerson = {
         name: body.name,
