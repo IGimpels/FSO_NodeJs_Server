@@ -12,13 +12,23 @@ Content-Type: application/json
 
 ###
 
+PUT http://127.0.0.1:3001/api/persons/63bc4f2ea915aa3fbee85a1f
+Content-Type: application/json
+
+{
+    "name" : "Ilia G",
+    "number" : "123-998"
+}
+
+###
+
 GET http://127.0.0.1:3001/info
 
 ###
-GET http://127.0.0.1:3001/api/persons/1
+GET http://127.0.0.1:3001/api/persons/63bc4f2ea915aa3fbee85a1f
 
 ###
-GET http://127.0.0.1:3001/api/persons/200
+GET http://127.0.0.1:3001/api/persons/67576
 
 ###
-DELETE http://127.0.0.1:3001/api/persons/8
+DELETE http://127.0.0.1:3001/api/persons/63bc5da84f9e7dc91e42e2ed

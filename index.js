@@ -13,62 +13,100 @@ app.use(express.static('build'))
 app.use(morgan(
     ':method :url :status :res[content-length] - :response-time ms :content', 
     {
-        skip: (req, res) => req.method.toLowerCase() !== 'post'
+        skip: (req, res) => (req.method.toLowerCase() !== 'post') && (req.method.toLowerCase() !== 'put')
     }
     ))
 
 app.use(morgan('tiny', {
-    skip: (req, res) => req.method.toLowerCase() === 'post'
+    skip: (req, res) => req.method.toLowerCase() === 'post' || req.method.toLowerCase() === 'put'
 }))
 
-app.get('/info', (request,response) => {
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
+
+    if(error.name === 'CastError') {
+        return response.status(400).send({error: 'malformatted id'})
+    }
+
+    next(error)
+    
+}
+
+
+app.get('/info', (request,response, next) => {
     Person.count().then(c => {
         response.send(`Phonebook has info for ${c} people </br> ${new Date()}`);
-    })    
+    }).catch(error => next(error))  
 })
 
-app.get('/api/persons', (request,response) => {
+app.get('/api/persons', (request,response, error) => {
     Person.find({}).then(persons => {
         response.json(persons)
-    })
+    }).catch(error => next(error))
 })
 
-app.post('/api/persons', (request,response) => {
+const validatePerson = (person) => {
+    return person.name && person.number
+}
+
+app.post('/api/persons', (request,response, next) => {
     const body = request.body
-    if(!body.name || !body.number)
+    if(!validatePerson(body))
     {
         return response.status(400).json({"error": "name or number missing"})
     }
 
-    const newPerson = new Person({
-        name: body.name,
-        number: body.number
-    })
-    newPerson.save().then(savedPerson => {
-        response.json(savedPerson)
-    })
-
-    /*Person.findOne({"name": body.name}).then(p=>{
-        if(p) {
-            response.status(409).json({ error: 'name must be unique' })
+    Person.findOne({name: body.name}).then(person => {
+        if(person)
+        {
+            response.status(409).end()
             return
         }
+
         const newPerson = new Person({
             name: body.name,
             number: body.number
         })
-        newPerson.save().then(savedPerson => {
+
+        return newPerson.save().then(savedPerson => {
             response.json(savedPerson)
         })
-    })*/
+    }).catch(error => next(error))    
 })
 
-app.get('/api/persons/:id', (request,response) => {
+app.put('/api/persons/:id', (request,response, next) => {
+    const body = request.body
+
+    if(!validatePerson(body))
+    {
+        return response.status(400).json({"error": "name or number missing"})
+    }
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true}).then(person => {
+        if(person)
+            response.json(person)
+        else
+            response.status(404).end()
+        
+    }).catch(error => next(error))
+})
+
+app.get('/api/persons/:id', (request,response, next) => {
     Person.findById(request.params.id).then(person => {
+        if(!person){
+            response.status(404).end()
+            return
+        }
+        
         response.json(person)
     })
-    .catch(() =>{
-        response.status(404).end()
+    .catch(error => {
+        return next(error)
     })  
 })
 
@@ -77,14 +115,14 @@ app.delete('/api/persons/:id', (request,response) => {
         response.status(204).end() 
     })
     .catch(() => {
-        response.status(204).end()    
+        return next(error) 
     })
 })
 
+app.use(errorHandler)
 
 const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
 })
-
 
